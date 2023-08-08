@@ -1,0 +1,14 @@
+.date-picker{
+    width:100%;
+    display: block;
+    margin-left: 88%;
+    font-weight: bolder;
+}
+
+.date-picker input{
+    height: 3rem;
+    width: 9rem;
+    font-size: 26px;
+    border-radius: 12px;
+    border-color: #ccc;
+}

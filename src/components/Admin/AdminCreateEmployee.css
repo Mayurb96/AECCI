@@ -1,0 +1,32 @@
+.employee-form {
+    font: inherit;
+    font-size: 24px;
+    width: 60rem;
+    height: 200rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background-color: white;
+    margin: 3rem auto;
+    margin-left: 20%;
+    text-align: justify;
+  }
+input,label,select{
+    display: block;
+}
+  .employee-input {
+    margin-bottom: 20px; 
+  }
+  .employee-input input, .employee-input select{
+    font: inherit;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    max-width: 30rem;
+    width:100%;
+   margin-left: 1rem;
+  }
+ .form-label::before {
+    content: "*";
+    color: red;
+  }
+

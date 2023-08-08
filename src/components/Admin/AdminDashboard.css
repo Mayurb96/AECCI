@@ -1,0 +1,167 @@
+form {
+  width: 200rem;
+  height: 40rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background-color: white;
+  margin: 3rem auto;
+}
+
+.admin-header {
+  display: block;
+  justify-content: flex-start;
+  margin-bottom: 2.5rem;
+  position: relative;
+}
+
+.background-image {
+  width: 112rem;
+  height: 20rem;
+}
+
+.admin-title {
+  position: absolute;
+  top: 10%;
+  left: 5.5%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 34px;
+}
+
+.admin-text {
+  position: absolute;
+  top: 50%;
+  left: 20%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 22px;
+}
+.admin-dashboard {
+  display: flex;
+}
+
+.side-panel {
+  display: block;
+}
+
+.welcome {
+  display: block;
+  margin-left: 5%;
+  width: 80rem;
+}
+.welcome h1 {
+  color: blueviolet;
+  font-size: 60px;
+}
+.welcome-button1 {
+  margin-top: 40px;
+  margin-bottom: 20px;
+  margin-left: 85%;
+  padding: 1rem;
+}
+.welcome-button2 {
+  margin-top: 40px;
+  margin-bottom: 20px;
+  padding: 1rem;
+}
+
+.admin-functions {
+  display: block;
+}
+.functions-button1 {
+  width: calc(33.33% - 0px);
+  margin-bottom: 2.5rem;
+  margin-left: 15%;
+}
+
+.functions-button2 {
+  width: calc(33.33% - 0px);
+  margin-bottom: 2.5rem;
+}
+
+.line {
+  flex-grow: 1;
+  height: 1px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  background-color: #131111;
+  width: 112rem;
+}
+
+.line1 {
+  flex-grow: 1;
+  height: 1px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  background-color: #131111;
+}
+
+/* Dashboard Profile css */
+
+.info-image {
+  width: 20px;
+  height: 20px;
+}
+.admin-dashboard2 {
+  display: block;
+  margin-left: -3%;
+}
+
+.admin-profile-buttons {
+  display: flex;
+  justify-content: space-between;
+  font-size: 24px;
+  width: calc(33.33% - 30px);
+  margin-bottom: 5rem;
+  margin-left: 11%;
+  margin-top: 2rem;
+}
+
+.administration-buttons {
+  font: inherit;
+  font-size: 24px;
+  display: flex;
+  justify-content: space-between;
+  width: calc(33.33% - 30px);
+  margin-top: 5rem;
+  margin-left: 15%;
+  margin-top: 2rem;
+}
+
+.form {
+  display: block;
+}
+
+/* Employee Dashboard */
+.empImg {
+  width: 80px;
+  height: 80px;
+  margin-left: 67%;
+  margin-top: 3%;
+  cursor: pointer;
+}
+
+/* EmployeeIcon.css */
+.employee-box {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-top: 10px;
+  width: 500px;
+  max-width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.employee-details {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.employee-img {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}

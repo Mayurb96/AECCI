@@ -1,0 +1,25 @@
+.options {
+  margin: 3rem;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+label {
+  font-size: 24px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  margin: 2px;
+}
+
+.radio-option input {
+  margin-right: 5px;
+  width: 20px;
+  height: 20px;
+}
+.Departments2 {
+  margin-right: 40px;
+}
