@@ -19,7 +19,7 @@ import AuthContext from "../../context";
 
 const EmployeeHome = (props) => {
   const navigate = useNavigate();
-  const [employeeData, setEmployeeData] = useState(null);
+const [employeeData,setEmployeeData]=useState(false);
 
   const {
     profileImage,
@@ -30,7 +30,6 @@ const EmployeeHome = (props) => {
     date,
     signature,
     employeeId,
-    tasks,
     emailId,
     designation,
     updateContextData,
@@ -38,35 +37,25 @@ const EmployeeHome = (props) => {
 
   const employeeDataHandler = (event) => {
     event.preventDefault();
-    fetch(`http://localhost:3001/getMyaccount/${employeeId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: { employeeId: employeeId },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        setEmployeeData(data)})
-      .catch((error) => console.error("Error fetching employee data:", error));
+setEmployeeData(()=>!employeeData)
+    // fetch(`http://localhost:3001/getMyaccount/${employeeId}`, {
+    //   method: "GET",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: { employeeId: employeeId },
+    // })
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     console.log(data);
+    //     updateContextData(data)})
+    //   .catch((error) => console.error("Error fetching employee data:", error));
 
     // setTimeout(() => {
     //   setEmployeeData((prevData) => (prevData ? null : dummyEmployeeData));
     // }, 1000);
   };
-    updateContextData({
-      profileImage: employeeData.profileImage?employeeData.profileImage :'',
-      departmentName: employeeData.departmentName,
-      officerName: employeeData.officerName,
-      userName: employeeData.userName,
-      password: employeeData.password,
-      date: employeeData.date,
-      signature: employeeData.signature,
-      employeeId: employeeData.employeeId,
-      emailId: employeeData.emailId,
-      designation: employeeData.designation,
-    });
+ 
    
   const openJdHandler = (event) => {
     event.preventDefault();
@@ -134,25 +123,25 @@ const EmployeeHome = (props) => {
             {employeeData && (
               <div className="employee-box">
                 <img
-                  src={employeeData.employeeImg}
+                  src={profileImage}
                   alt="Employee"
                   className="employee-img"
                 />
                 <div className="employee-details">
-                  <p>Employee Code: {employeeData.employeeCode}</p>
-                  <p>Name: {employeeData.name}</p>
-                  <p>Designation: {employeeData.designation}</p>
-                  <p>Department: {employeeData.department}</p>
-                  <p>Email: {employeeData.emailId}</p>
-                  <p>Date: {employeeData.date}</p>
-                  <p>Username: {employeeData.username}</p>
-                  <p>Password: {employeeData.password}</p>
+                  <p>Employee Code: {employeeId}</p>
+                  <p>Name: {officerName}</p>
+                  <p>Designation: {designation}</p>
+                  <p>Department: {departmentName}</p>
+                  <p>Email: {emailId}</p>
+                  <p>Date: {date}</p>
+                  <p>Username: {userName}</p>
+                  <p>Password: {password}</p>
                 </div>
               </div>
             )}
           </div>
           <h3>Good Morning</h3>
-          <p>Welcome, {employeeData.emailId}</p>
+          <p>Welcome, {emailId}</p>
 
           <button className="welcome-button1" onClick={() => navigate(-1)}>
             Back

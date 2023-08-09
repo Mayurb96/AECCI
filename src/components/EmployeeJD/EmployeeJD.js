@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect,useContext } from "react";
 import background from "../../image/bg.jpg";
 import empImg from "../../image/staff.png";
 import employee from "../../image/employee.jpg";
 import "./EmployeeJD.css";
 import { useNavigate } from "react-router-dom";
+import AuthContext from "../../context";
 
 const dummyEmployeeData = {
   employeeImg: { employee },
@@ -21,9 +22,21 @@ const EmployeeJD = () => {
   const navigate = useNavigate();
   const [employeeData, setEmployeeData] = useState(null);
   const [userRole, setUserRole] = useState(""); // Initialize with an appropriate default value
+  const {
+    profileImage,
+    departmentName,
+    officerName,
+    userName,
+    password,
+    date,
+    signature,
+    employeeId,
+    tasks,
+    emailId,
+    designation,
+    updateContextData,
+  } = useContext(AuthContext);
 
-  const employeeId = 52;
-  const jdId = 123;
 
   useEffect(() => {
   
@@ -69,6 +82,7 @@ const EmployeeJD = () => {
   const [description, setDescription] = useState("");
   const [timeExpired, setTimeExpired] = useState(false);
   const [extensions, setExtensions] = useState(0);
+  
 
   useEffect(() => {
     let interval = null;
@@ -93,6 +107,7 @@ const EmployeeJD = () => {
       .toString()
       .padStart(2, "0")}`;
   };
+  const jdId=1;
 
   const handleEndTask = () => {
     const endTime = new Date(); // Get the current time as the end time
@@ -165,7 +180,7 @@ const EmployeeJD = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: { employeeId: employeeId, jdId:jdId },
+      body: { employeeId: employeeId },
     })
       .then((response) => response.json())
       .then((data) => setTableData(data))
@@ -196,7 +211,7 @@ const EmployeeJD = () => {
   }
 
   const current = new Date();
-  const date = `${current.getDate()}/${
+  const jdDate = `${current.getDate()}/${
     current.getMonth() + 1
   }/${current.getFullYear()}`;
 
@@ -258,19 +273,19 @@ const EmployeeJD = () => {
             {employeeData && (
               <div className="employee-box">
                 <img
-                  src={employeeData.employeeImg}
+                  src={profileImage}
                   alt="Employee"
                   className="employee-img"
                 />
                 <div className="employee-details">
-                  <p>Employee Code: {employeeData.employeeCode}</p>
-                  <p>Name: {employeeData.name}</p>
-                  <p>Designation: {employeeData.designation}</p>
-                  <p>Department: {employeeData.department}</p>
-                  <p>Email: {employeeData.emailId}</p>
-                  <p>Date: {employeeData.date}</p>
-                  <p>Username: {employeeData.username}</p>
-                  <p>Password: {employeeData.password}</p>
+                  <p>Employee Code: {employeeId}</p>
+                  <p>Name: {officerName}</p>
+                  <p>Designation: {designation}</p>
+                  <p>Department: {departmentName}</p>
+                  <p>Email: {emailId}</p>
+                  <p>Date: {date}</p>
+                  <p>Username: {userName}</p>
+                  <p>Password: {password}</p>
                 </div>
               </div>
             )}
@@ -301,14 +316,14 @@ const EmployeeJD = () => {
             </div>
             {employeeData ? (
               <div className="employee-details">
-                <p>EMPLOYEE CODE: {employeeData.employeeCode}</p>
+                <p>EMPLOYEE CODE: {employeeId}</p>
                 <div className="line1" />
-                <p>EMPLOYEE NAME: {employeeData.employeeName}</p>
+                <p>EMPLOYEE NAME: {officerName}</p>
                 <div className="line1" />
-                <p>DESIGNATION: {employeeData.designation}</p>
+                <p>DESIGNATION: {designation}</p>
                 <div className="line1" />
-                <p>REPORTING: {employeeData.reporting}</p>
-                <div className="line1" />
+                {/* <p>REPORTING: {reporting}</p>
+                <div className="line1" /> */}
               </div>
             ) : (
               <p>Loading employee data...</p>
@@ -341,7 +356,7 @@ const EmployeeJD = () => {
             </thead>
             <tbody style={{ height: "8rem" }}>
               <tr>
-                <td>{date}</td>
+                <td>{jdDate}</td>
                 <td>
                   {showTime}{" "}
                   <button

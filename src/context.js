@@ -15,8 +15,11 @@ export function AuthContextProvider({ children }) {
     emailId: "emailId",
     designation: "designation",
 
-    updateContextData:(newData)=>{
-        setContextData((prevData)=>({...prevData, ...newData}))
+    updateContextData:(newData,func)=>{
+        setContextData((prevData)=>({...prevData, ...newData}),()=>{
+           console.log(contextData);
+            func();
+        })
     }
   });
 

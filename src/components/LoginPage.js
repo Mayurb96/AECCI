@@ -1,13 +1,29 @@
 import logo from '../image/logo.jpg';
-import { useState,useEffect } from 'react';
+import { useState,useEffect,useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useInput from '../hooks/use-input';
+import AuthContext from "../context";
+
 
 
 const isEmail = (value) => value.includes('@');
 const isPassword = (value) => value.trim() !== '';
 
 const Login = () => {
+  const {
+    profileImage,
+    departmentName,
+    officerName,
+    userName,
+    password,
+    date,
+    signature,
+    employeeId,
+    tasks,
+    emailId,
+    designation,
+    updateContextData,
+  } = useContext(AuthContext);
   const navigate=useNavigate();
   
   const [userRole, setUserRole] = useState(null); 
@@ -28,8 +44,10 @@ const Login = () => {
       console.log(data);
       if (data.status) {
         // Assuming the server responds with a success flag upon successful login
+        updateContextData(data,navigate('/employee'));
         setLoggedIn(true);
-        navigate('/employee');
+
+        
 
       } else {
         console.error('Login failed',data.message);
