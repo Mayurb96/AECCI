@@ -7,39 +7,37 @@ import useInput from '../hooks/use-input';
 const isEmail = (value) => value.includes('@');
 const isPassword = (value) => value.trim() !== '';
 
-const Login = ({onLogin}) => {
+const Login = () => {
   const navigate=useNavigate();
+  
   const [userRole, setUserRole] = useState(null); 
   const [userEmail, setUserEmail] = useState(null);
+  const [loggedIn,setLoggedIn]=useState(false);
 
 
   const handleLogin = () => {
     fetch('http://localhost:3001/loginAdministration', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: { email:emailValue, password:passwordValue },
+    method: 'POST', // Use POST method for sending user credentials
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email: emailValue, password: passwordValue }), // Send user input as JSON
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      if (data.status) {
+        // Assuming the server responds with a success flag upon successful login
+        setLoggedIn(true);
+        navigate('/employee');
+
+      } else {
+        console.error('Login failed',data.message);
+      }
     })
-      .then((response) => response.json())
-      .then((data) => {
-        onLogin(data);
-        data.userEmail === 'employee' ? navigate("/employee"):  navigate("/hr");
-      })
-      .catch((error) =>(fetch('http://localhost:3001/loginHR', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: { email:emailValue, password:passwordValue },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          onLogin(data);
-          data.userEmail === 'HR' ? navigate("/hr"):  navigate("/employee");
-        }))
-        .catch((error=>console.error('Login error:', error)))
-        );
+    .catch((error) => {
+      console.error('An error occurred during login:', error);
+    });
   };
   
   const {

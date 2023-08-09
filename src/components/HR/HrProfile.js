@@ -8,16 +8,52 @@ const HrProfile = (props) => {
   const navigate=useNavigate();
   const empEmailId = "hr@aecci.org.in";
   const [employeeData,setEmployeeData]=useState(null);
+  const [formValues, setFormValues] = useState({
+    profileImage: null,
+    departmentName: '',
+    officerName: '',
+    employeeId: '',
+    emailId: '',
+    userName: '',
+    password: '',
+    designation: '',
+    date: '',
+    signature: null,
+  });
 
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
+  };
+
+  const handleImageChange = (event) => {
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      profileImage: event.target.files[0],
+    }));
+  };
+
+  const handleSignatureChange = (event) => {
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      signature: event.target.files[0],
+    }));
+  };
  
 console.log(employeeData);
   const saveEmployeeDataHandler=(enteredEmpData)=>{
+    const filteredFormValues = Object.fromEntries(
+      Object.entries(formValues).filter(([_, value]) => value !== null)
+    )
     fetch(`http://localhost:3001/registerAdministration`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: { employeeData:enteredEmpData },
+      body: JSON.stringify(filteredFormValues)
     })
       .then((response) =>{if (!response.ok) {
         throw new Error('Network response was not ok');
