@@ -7,10 +7,21 @@ import AdminCreateEmployee from "../Admin/AdminCreateEmployeeForm";
 const HrProfile = (props) => {
   const navigate=useNavigate();
   const empEmailId = "hr@aecci.org.in";
+  const [employeeData,setEmployeeData]=useState(null);
 
  
 
   const saveEmployeeDataHandler=(enteredEmpData)=>{
+    fetch(`http://localhost:3001/registerAdministration`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: {  },
+    })
+      .then((response) => response.json())
+      .then((data) =>setEmployeeData(data) )
+      .catch((error) => console.error("Error fetching employee data:", error));
 const empData={
   ...enteredEmpData,
   id: Math.random().toString(),

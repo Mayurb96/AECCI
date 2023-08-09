@@ -8,7 +8,7 @@ import EmployeeJD from "../EmployeeJD/EmployeeJD";
 import { useNavigate } from "react-router-dom";
 
 
-const HrJdList = () => {
+const HrJdList = ({ employeeId }) => {
   
   const [timer, setTimer] = useState(1800);
   const [tableData, setTableData] = useState([]); 
@@ -68,20 +68,54 @@ const HrJdList = () => {
   const navigate=useNavigate();
   const [selectedDate, setSelectedDate] = useState(null);
   const [employeeData, setEmployeeData] = useState(null);
+  const [userRole, setUserRole] = useState(""); // Initialize with an appropriate default value
 
+
+  // useEffect(() => {
+  //   fetchTableData();
+  // }, []);
   useEffect(() => {
-    fetchTableData();
-  }, []);
+    const fetchTableData = async () => {
+      try {
+        const formattedDate = selectedDate ? selectedDate.toISOString().split('T', 1)[0] : '';
+        const response = await fetch(
+          `http://localhost:3001/getWantedAdministrationList/${employeeId}?date=${formattedDate}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        ); 
+        const data = await response.json();
+        setTableData(data); 
+      } catch (error) {
+        console.error('Error fetching table data:', error);
+      }
+    };
+  
+    fetchTableData(); // Call the function immediately inside useEffect
+    }, [employeeId, selectedDate]);
+  
 
-  const fetchTableData = async () => {
-    try {
-      const response = await fetch('/api/getTableData'); 
-      const data = await response.json();
-      setTableData(data); 
-    } catch (error) {
-      console.error('Error fetching table data:', error);
-    }
-  };
+  // const fetchTableData = async () => {
+  //   try {
+  //     const formattedDate = selectedDate ? selectedDate.toISOString().split('T')[0] : '';
+  //     const response = await fetch(
+  //       `http://localhost:3001/getWantedAdministrationList/${employeeId}?date=${formattedDate}`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     ); 
+  //     const data = await response.json();
+  //     setTableData(data); 
+  //   } catch (error) {
+  //     console.error('Error fetching table data:', error);
+  //   }
+  // };
   const employeeCode = 52;
 
   useEffect(() => {
@@ -89,16 +123,33 @@ const HrJdList = () => {
   }, []);
 
   const fetchEmployeeData = () => {
-    fetch(`/api/employees/${employeeCode}`)
+    fetch(`http://localhost:3001/getWantedAdministrationList/${employeeCode}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: { employeeId: employeeCode},
+    })
       .then((response) => response.json())
-      .then((data) => setEmployeeData(data))
+      .then((data) => {setEmployeeData(data)
+      setUserRole(data.role)})
       .catch((error) => console.error("Error fetching employee data:", error));
+
   };
-
-
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
+  const filteredTableData = tableData.filter(item => {
+    const itemDate = new Date(item.date); // Assuming startTime is in a Date format
+    return (
+      selectedDate &&
+      itemDate.getDate() === selectedDate.getDate() &&
+      itemDate.getMonth() === selectedDate.getMonth() &&
+      itemDate.getFullYear() === selectedDate.getFullYear()
+    );
+  });
+
+  
 
   return (
     <form>
@@ -185,7 +236,7 @@ const HrJdList = () => {
               <div className="line2" />
               <h3>REPORTING: Mr.Harish</h3>              
             </div>
-            {/* {employeeData ? (
+            {employeeData ? (
         <div className="employee-details">
           <p>EMPLOYEE CODE: {employeeData.employeeCode}</p>
           <div className="line1" />
@@ -198,7 +249,7 @@ const HrJdList = () => {
         </div>
       ) : (
         <p>Loading employee data...</p>
-      )} */}
+      )}
             <img
               src="https://www.aecci.org.in/wp-content/uploads/2023/08/1234546-1024x780.png"
               class="attachment-large size-large"
@@ -225,56 +276,18 @@ const HrJdList = () => {
           </tr>
         </thead>
         <tbody style={{ height:'8rem'}}>
-          {/* <tr>
-            <td>{date}</td>
-            <td>{showTime} <button onClick={startTimeHandler} style={{ marginTop:'15px'}}>START</button></td>
-            <td>
-              <textarea
-                type="text"
-                value={jobRole}
-                className="table-input"
-                onChange={(e) => setJobRole(e.target.value)}
-              />
-            </td>
-            <td>
-              <textarea
-                type="text"
-                value={description}
-                className="table-input"
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </td>
-            <td>{showTime}</td>
-            <td>{formatTime(timer)}</td>
-            <td>
-              {!timeExpired && extensions<=2 &&<button onClick={handleEndTask} >End</button>}
-            {timeExpired && (
-        <div>
-          {extensions < 2 ? (
-            <button onClick={handleExtendTimer}>Extend</button>
-          ) : (
-            <button disabled>Extend</button>
-          )}
-          {extensions<2 && <button onClick={handleEndTask} >End</button>}
-          {extensions >= 2 && <button onClick={handleEndTask} disabled>End</button>}
-        </div>
-      )}
-            </td> 
-          </tr>*/}
-          {tableData.map((item, index) => (
+      
+          {filteredTableData.map((item, index) => (
             <tr key={index}>
-              <td>{item.showTime}</td>
+              <td>{item.startTime}</td>
               <td>{item.jobRole}</td>
               <td>{item.description}</td>
-              <td>{formatTime(timer)}</td>
-              <td>
-                <button onClick={() => console.log('Next block logic')}>NEXT BLOCK</button>
-              </td>
+              <td>{item.endTime}</td>
+              
             </tr>
           ))}
         </tbody>
       </table>
-      <button onClick={() => console.log('SUBMIT', tableData)} style={{ marginLeft:'18%', marginTop:'30px'}}>SUBMIT</button>
 
       </div>
             

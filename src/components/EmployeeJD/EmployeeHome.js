@@ -20,22 +20,42 @@ const EmployeeHome = (props) => {
   const navigate=useNavigate();
   const empEmailId = "webmaster@aecci.org.in";
   const [employeeData,setEmployeeData]=useState(null);
-  // const [openJD,setOpenJD]=useState(false);
+  const [employeeJd,setEmployeeJd]=useState(null);
+const employeeId=5;
 
   const employeeDataHandler=(event)=>{
 event.preventDefault();
-    // fetch('/api/employees') 
-    // .then((response) => response.json())
-    // .then((data) => setEmployeeData(data))
-    // .catch((error) => console.error('Error fetching employee data:', error));
+fetch(`http://localhost:3001/getMyaccount/${employeeId}`,{
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: { employeeId:employeeId },
+})
+  .then((response) => response.json())
+  .then((data) => setEmployeeData(data))
+  .catch((error) => console.error("Error fetching employee data:", error));
+
     setTimeout(() => {
         setEmployeeData((prevData) => (prevData ? null :dummyEmployeeData));
       }, 1000);
   }
-  // const createReportHandler=(event)=>{
-  //   event.preventDefault();
-  //  setOpenJD(true);
-  // }
+  const openJdHandler=(event)=>{
+    event.preventDefault();
+    navigate('/employee/employeeJd')
+    fetch(`http://localhost:3001/createEmployeeJd/${employeeId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: { employeeId: employeeId },
+    })
+      .then((response) => response.json())
+      .then((data) => setEmployeeJd(data))
+      .catch((error) => console.error("Error fetching employee data:", error));
+   
+  }
+  
 
   return (
     <form>
@@ -106,7 +126,7 @@ event.preventDefault();
       )}
           </div>
           <h3>Good Morning</h3>
-          <p>Welcome, {empEmailId}</p>
+          <p>Welcome, {employeeData.emailId}</p>
           
           <button className="welcome-button1" onClick={()=>navigate(-1)}>Back</button>
           <button className="welcome-button2" onClick={()=>navigate('/login')}>Logout</button>
@@ -126,13 +146,10 @@ event.preventDefault();
             
             <button
               className="functions-button2"
-              onClick={()=>navigate('/employee/employeeJd')}
-             
+              onClick={openJdHandler}
             >
               CREATE YOUR DAILY REPORT
             </button>
-
-            {/* {openJD && <EmployeeJD/>} */}
             <div className="line1" />
             </div>
           </div>

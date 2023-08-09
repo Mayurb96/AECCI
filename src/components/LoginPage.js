@@ -14,19 +14,32 @@ const Login = ({onLogin}) => {
 
 
   const handleLogin = () => {
-    fetch('/api/login', {
-      method: 'POST',
+    fetch('http://localhost:3001/loginAdministration', {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ emailValue, passwordValue }),
+      body: { email:emailValue, password:passwordValue },
     })
       .then((response) => response.json())
       .then((data) => {
         onLogin(data);
-        userRole === 'employee' ? navigate("employee"):  navigate("hr");
+        data.userEmail === 'employee' ? navigate("/employee"):  navigate("/hr");
       })
-      .catch((error) => console.error('Login error:', error));
+      .catch((error) =>(fetch('http://localhost:3001/loginHR', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: { email:emailValue, password:passwordValue },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          onLogin(data);
+          data.userEmail === 'HR' ? navigate("/hr"):  navigate("/employee");
+        }))
+        .catch((error=>console.error('Login error:', error)))
+        );
   };
   
   const {

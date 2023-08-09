@@ -18,39 +18,56 @@ const dummyEmployeeData = {
 };
 
 const EmployeeJD = () => {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const [employeeData, setEmployeeData] = useState(null);
-  const employeeCode = 52;
+  const [userRole, setUserRole] = useState(""); // Initialize with an appropriate default value
+
+  const employeeId = 52;
+  const jdId = 123;
 
   useEffect(() => {
     fetchEmployeeData();
   }, []);
 
   const fetchEmployeeData = () => {
-    fetch(`/api/employees/${employeeCode}`)
+    fetch(`http://localhost:3001/getMyaccount/${employeeId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: { employeeId: employeeId },
+    })
       .then((response) => response.json())
-      .then((data) => setEmployeeData(data))
+      .then((data) => {setEmployeeData(data);
+      setUserRole(data.role)})
       .catch((error) => console.error("Error fetching employee data:", error));
   };
 
   const employeeDataHandler = (event) => {
     event.preventDefault();
-    // fetch('/api/employees')
-    // .then((response) => response.json())
-    // .then((data) => setEmployeeData(data))
-    // .catch((error) => console.error('Error fetching employee data:', error));
+    fetch(`http://localhost:3001/getMyaccount/${employeeId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: { employeeId: employeeId },
+    })
+      .then((response) => response.json())
+      .then((data) => setEmployeeData(data))
+      
+      .catch((error) => console.error("Error fetching employee data:", error));
+
     setTimeout(() => {
       setEmployeeData((prevData) => (prevData ? null : dummyEmployeeData));
     }, 1000);
   };
 
   const [timer, setTimer] = useState(1800);
-  const [tableData, setTableData] = useState([]); 
-  const [jobRole, setJobRole] = useState('');
-  const [description, setDescription] = useState('');
-  const [timeExpired,setTimeExpired]=useState(false);
-  const [extensions,setExtensions]=useState(0);
- 
+  const [tableData, setTableData] = useState([]);
+  const [jobRole, setJobRole] = useState("");
+  const [description, setDescription] = useState("");
+  const [timeExpired, setTimeExpired] = useState(false);
+  const [extensions, setExtensions] = useState(0);
 
   useEffect(() => {
     let interval = null;
@@ -61,9 +78,8 @@ const EmployeeJD = () => {
     } else {
       if (interval) {
         clearInterval(interval);
-        
       }
-      window.alert('Timer reached 0!');
+      window.alert("Timer reached 0!");
       setTimeExpired(true);
     }
     return () => clearInterval(interval);
@@ -72,41 +88,126 @@ const EmployeeJD = () => {
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secondsLeft = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${secondsLeft.toString().padStart(2, '0')}`;
+    return `${minutes.toString().padStart(2, "0")}:${secondsLeft
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   const handleEndTask = () => {
+    const endTime = new Date(); // Get the current time as the end time
+  const newTask = {
+    startTime: showTime, // Start time captured earlier
+    jobRole,
+    description,
+    endTime: endTime.toLocaleTimeString(), // Format end time as a string
+  };
+    fetch(`http://localhost:3001/logOutJd/${employeeId}/${jdId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: { employeeId: employeeId, jdId: jdId },
+    })
+      .then((response) => { if (response.ok) {
+        return response.json(); // Parse response data if successful
+      } else {
+        throw new Error("Error logging out JD"); // Handle error if not successful
+      }})
+      .then((data) => {  
+        setTableData((prevData) => [...prevData, newTask]); // Add newTask to tableData
+        setJobRole("");
+        setDescription("");
+        setTimer(1800);
+      })
+      .catch((error) => console.error("Error fetching employee data:", error));
+
     setTableData((prevData) => [...prevData, { jobRole, description }]);
-    setJobRole('');
-    setDescription('');
+    setJobRole("");
+    setDescription("");
     setTimer(1800);
   };
-  const startTimeHandler=(event)=>{
+  const startTimeHandler = (event) => {
     event.preventDefault();
-    setTimer(5);
+    const startTime = new Date(); // Get the current time as the end time
+  const newTask = {
+    startTime: startTime.toLocaleTimeString(), // Start time captured earlier
+    jobRole,
+    description,
+    endTime: showTime, // Format end time as a string
+  };
+    fetch(`http://localhost:3001/thirtyMin/${employeeId}/${jdId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: { employeeId: employeeId, jdId:jdId },
+    })
+      .then((response) => { if (response.ok) {
+        return response.json(); // Parse response data if successful
+      } else {
+        throw new Error("Error logging out JD"); // Handle error if not successful
+      }})
+      .then((data) => {  
+        setTableData((prevData) => [...prevData, newTask]); // Add newTask to tableData
+        setJobRole("");
+        setDescription("");
+        setTimer(1800);
+      })
+      .catch((error) => console.error("Error fetching employee data:", error));
+
+    setTimer(1800);
     setTimeExpired(false);
-    
-  }
+  };
   const handleExtendTimer = () => {
-    if (extensions <=2) {
-      setTimer(6);
+    fetch(`http://localhost:3001/fifteenMin/${employeeId}/${jdId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: { employeeId: employeeId, jdId:jdId },
+    })
+      .then((response) => response.json())
+      .then((data) => setTableData(data))
+      .catch((error) => console.error("Error fetching employee data:", error));
+
+    if (extensions <= 2) {
+      setTimer(900);
       setExtensions((prevExtensions) => prevExtensions + 1);
       setTimeExpired(false);
     }
-  }
- 
-  const current=new Date();
-  const date = `${current.getDate()}/${current.getMonth()+1}/${current.getFullYear()}`;
-  
-  const showTime = current.getHours()  + ':' + current.getMinutes()  + ":" + current.getSeconds();
+  };
 
-  const saveTableHandler=(data)=>{
-    setTableData(data);
+  const nextTaskHandler=(event)=>{
+    event.preventDefault();
+    fetch(`http://localhost:3001/createAnotherOne/${employeeId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: { employeeID: employeeId },
+    })
+      .then((response) => response.json())
+      .then((data) => setTableData(data))
+      .catch((error) => console.error("Error fetching employee data:", error));
+
+    setTimer(1800);
+    setTimeExpired(false);
   }
-   
-  
+
+  const current = new Date();
+  const date = `${current.getDate()}/${
+    current.getMonth() + 1
+  }/${current.getFullYear()}`;
+
+  const showTime =
+    current.getHours() +
+    ":" +
+    current.getMinutes() +
+    ":" +
+    current.getSeconds();
+
   return (
-    <div >
+    <div>
       <div className="admin-header">
         <h2 className="admin-title" style={{ marginLeft: "8%" }}>
           AECCI- Employee Report
@@ -174,8 +275,15 @@ const EmployeeJD = () => {
             )}
           </div>
 
-          <button className="welcome-button1" onClick={()=>navigate(-1)}>Back</button>
-          <button className="welcome-button2" onClick={()=>navigate('/login')}>Logout</button>
+          <button className="welcome-button1" onClick={() => navigate(-1)}>
+            Back
+          </button>
+          <button
+            className="welcome-button2"
+            onClick={() => navigate("/login")}
+          >
+            Logout
+          </button>
           <div className="line1" />
           <div className="employee-info">
             <div
@@ -188,22 +296,22 @@ const EmployeeJD = () => {
               <div className="line2" />
               <h3>DESIGNATION: Digital Efforts</h3>
               <div className="line2" />
-              <h3>REPORTING: Mr.Harish</h3>              
+              <h3>REPORTING: Mr.Harish</h3>
             </div>
-            {/* {employeeData ? (
-        <div className="employee-details">
-          <p>EMPLOYEE CODE: {employeeData.employeeCode}</p>
-          <div className="line1" />
-          <p>EMPLOYEE NAME: {employeeData.employeeName}</p>
-          <div className="line1" />
-          <p>DESIGNATION: {employeeData.designation}</p>
-          <div className="line1" />
-          <p>REPORTING: {employeeData.reporting}</p>
-          <div className="line1" />
-        </div>
-      ) : (
-        <p>Loading employee data...</p>
-      )} */}
+            {employeeData ? (
+              <div className="employee-details">
+                <p>EMPLOYEE CODE: {employeeData.employeeCode}</p>
+                <div className="line1" />
+                <p>EMPLOYEE NAME: {employeeData.employeeName}</p>
+                <div className="line1" />
+                <p>DESIGNATION: {employeeData.designation}</p>
+                <div className="line1" />
+                <p>REPORTING: {employeeData.reporting}</p>
+                <div className="line1" />
+              </div>
+            ) : (
+              <p>Loading employee data...</p>
+            )}
             <img
               src="https://www.aecci.org.in/wp-content/uploads/2023/08/1234546-1024x780.png"
               class="attachment-large size-large"
@@ -216,74 +324,118 @@ const EmployeeJD = () => {
           <div className="line1" />
         </div>
       </div>
-      <form onSubmit={saveTableHandler}>
-      <div className="employee-table">
-     
-      <table>
-        <thead>
-          <tr>
-            <th>DATE</th>
-            <th>START TIME</th>
-            <th>JOB ROLE</th>
-            <th>DESCRIPTION</th>
-            <th>END TIME</th>
-            <th>TIME LEFT</th>
-            <th>END TASK</th>
-          </tr>
-        </thead>
-        <tbody style={{ height:'8rem'}}>
-          <tr>
-            <td>{date}</td>
-            <td>{showTime} <button onClick={startTimeHandler} style={{ marginTop:'15px'}}>START</button></td>
-            <td>
-              <textarea
-                type="text"
-                value={jobRole}
-                className="table-input"
-                onChange={(e) => setJobRole(e.target.value)}
-              />
-            </td>
-            <td>
-              <textarea
-                type="text"
-                value={description}
-                className="table-input"
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </td>
-            <td>{showTime}</td>
-            <td>{formatTime(timer)}</td>
-            <td>
-              {!timeExpired && extensions<=2 &&<button onClick={handleEndTask} >End</button>}
-            {timeExpired && (
-        <div>
-          {extensions < 2 ? (
-            <button onClick={handleExtendTimer}>Extend</button>
-          ) : (
-            <button disabled>Extend</button>
-          )}
-          {extensions<2 && <button onClick={handleEndTask} >End</button>}
-          {extensions >= 2 && <button onClick={handleEndTask} disabled>End</button>}
-        </div>
-      )}
-            </td>
-          </tr>
-          {tableData.map((item, index) => (
-            <tr key={index}>
-              <td>{item.showTime}</td>
-              <td>{item.jobRole}</td>
-              <td>{item.description}</td>
-              <td>{formatTime(timer)}</td>
-              <td>
-                <button onClick={() => console.log('Next block logic')}>NEXT BLOCK</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <button onClick={() => console.log('SUBMIT', tableData)} style={{ marginLeft:'18%', marginTop:'30px'}}>SUBMIT</button>
+      <form>
+        <div className="employee-table">
+          <table>
+            <thead>
+              <tr>
+                <th>DATE</th>
+                <th>START TIME</th>
+                <th>JOB ROLE</th>
+                <th>DESCRIPTION</th>
+                <th>END TIME</th>
+                <th>TIME LEFT</th>
+                <th>END TASK</th>
+              </tr>
+            </thead>
+            <tbody style={{ height: "8rem" }}>
+              <tr>
+                <td>{date}</td>
+                <td>
+                  {showTime}{" "}
+                  <button
+                    onClick={startTimeHandler}
+                    style={{ marginTop: "15px" }}
+                  >
+                    START
+                  </button>
+                </td>
+                <td>
+                  <textarea
+                    type="text"
+                    value={jobRole}
+                    className="table-input"
+                    onChange={(e) => setJobRole(e.target.value)}
+                  />
+                </td>
+                <td>
+                  <textarea
+                    type="text"
+                    value={description}
+                    className="table-input"
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </td>
+                <td>{showTime}</td>
+                <td>{formatTime(timer)}</td>
+                <td>
+                  {!timeExpired && extensions <= 2 && (
+                    <button onClick={handleEndTask}>End</button>
+                  )}
+                  {timeExpired && (
+                    <div>
+                      {extensions < 2 ? (
+                        <button onClick={handleExtendTimer}>Extend</button>
+                      ) : (
+                        <button disabled>Extend</button>
+                      )}
+                      {extensions < 2 && (
+                        <button onClick={handleEndTask}>End</button>
+                      )}
+                      {extensions >= 2 && (
+                        <button onClick={handleEndTask} disabled>
+                          End
+                        </button>
+                      )}
+                      {!timeExpired && extensions <= 2 && userRole === "Hr" && (
+  <button onClick={handleEndTask}>End</button>
+)}
+{timeExpired && userRole === "Hr" && (
+  <div>
+    {extensions < 2 ? (
+      <button onClick={handleExtendTimer}>Extend</button>
+    ) : (
+      <button disabled>Extend</button>
+    )}
+    {extensions < 2 && (
+      <button onClick={handleEndTask}>End</button>
+    )}
+    {extensions >= 2 && (
+      <button onClick={handleEndTask} disabled>
+        End
+      </button>
+    )}
+  </div>
+)}
 
-      </div>
+                    </div>
+                  )}
+                </td>
+              </tr>
+              {tableData.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.startTime}</td>
+                  <td>{item.jobRole}</td>
+                  <td>{item.description}</td>
+                  <td>{item.endTime}</td>
+                  <td>{formatTime(timer)}</td>
+                  
+                  <td>
+                    <button onClick={nextTaskHandler}>
+                      NEXT BLOCK
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <button
+            onClick={() => console.log("SUBMIT", tableData)}
+            style={{ marginLeft: "18%", marginTop: "30px" }}
+          >
+            SUBMIT
+          </button>
+        </div>
       </form>
     </div>
   );
