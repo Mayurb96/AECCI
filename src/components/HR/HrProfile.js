@@ -10,29 +10,34 @@ const HrProfile = (props) => {
   const [employeeData,setEmployeeData]=useState(null);
 
  
-
+console.log(employeeData);
   const saveEmployeeDataHandler=(enteredEmpData)=>{
     fetch(`http://localhost:3001/registerAdministration`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: {  },
+      body: { employeeData:enteredEmpData },
     })
-      .then((response) => response.json())
+      .then((response) =>{if (!response.ok) {
+        throw new Error('Network response was not ok');
+      } return response.json();
+    })
       .then((data) =>setEmployeeData(data) )
       .catch((error) => console.error("Error fetching employee data:", error));
-const empData={
-  ...enteredEmpData,
-  id: Math.random().toString(),
-}
-props.onAddEmpData(empData);
+// const empData={
+//   ...enteredEmpData,
+//   id: Math.random().toString(),
+// }
+// props.onAddEmpData(empData);
 navigate('/hr');
 }
- 
+console.log(employeeData);
+
 
 
   return (
+    <div>
     <form>
         <div className="admin-header" style={{ marginLeft: '2%'}}>
         <h2 className="admin-title" style={{marginLeft:'-1%'}}>e-Platform - HR</h2>
@@ -59,14 +64,15 @@ navigate('/hr');
           <button className="welcome-button2" onClick={()=>navigate('/login')}>Logout</button>
           <div className="line" />
         </div>
+        </div>
+    </form>
         
         <AdminCreateEmployee
           onSaveEmpData={saveEmployeeDataHandler}
-          onCancel={navigate('/hr')}
+          onCancel={()=>navigate('/hr')}
         /> 
-      
       </div>
-    </form>
+      
   );
 };
 

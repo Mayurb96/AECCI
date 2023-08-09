@@ -1,6 +1,5 @@
 import { useState } from "react";
 import './AdminCreateEmployee.css'
-import AdminCreateEmployeeOptions from "./AdminCreateEmployeeOptions";
 
 const AdminCreateEmployee = (props) => {
   const [department, setDepartment] = useState("");
@@ -48,7 +47,7 @@ const AdminCreateEmployee = (props) => {
         signature,
       };
   
-      props.onsaveEmpData(empData);
+      props.onSaveEmpData(empData);
     console.log("Form submitted:", {
       department,
       officerName,
@@ -94,6 +93,7 @@ const AdminCreateEmployee = (props) => {
             <option value="Wings">Wings Department</option>
             <option value="Accounts">Accounts Department</option>
             <option value="Publications">Publications Department</option>
+            <option value="Legal">Legal Wing</option>
             <option value="Misc">Miscelleneous</option>
           </select>
         </label></div>
@@ -123,8 +123,8 @@ const AdminCreateEmployee = (props) => {
         <label className="form-label">
           Designation
           <select
-            value={department}
-            onChange={(event) => setDepartment(event.target.value)}
+            value={designation}
+            onChange={(event) => setDesignation(event.target.value)}
             required
           >
             <option value="">Select Designation</option>
@@ -211,7 +211,6 @@ const AdminCreateEmployee = (props) => {
         <button type="button" onClick={props.onCancel}>
           Cancel
         </button>
-        <AdminCreateEmployeeOptions/>
       </form>
       
     </div>

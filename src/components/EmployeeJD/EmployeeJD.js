@@ -26,8 +26,7 @@ const EmployeeJD = () => {
   const jdId = 123;
 
   useEffect(() => {
-    fetchEmployeeData();
-  }, []);
+  
 
   const fetchEmployeeData = () => {
     fetch(`http://localhost:3001/getMyaccount/${employeeId}`, {
@@ -42,6 +41,8 @@ const EmployeeJD = () => {
       setUserRole(data.role)})
       .catch((error) => console.error("Error fetching employee data:", error));
   };
+  fetchEmployeeData();
+}, [employeeId]);
 
   const employeeDataHandler = (event) => {
     event.preventDefault();
@@ -314,9 +315,9 @@ const EmployeeJD = () => {
             )}
             <img
               src="https://www.aecci.org.in/wp-content/uploads/2023/08/1234546-1024x780.png"
-              class="attachment-large size-large"
+              className="attachment-large size-large"
               alt="aecci-logo"
-              srcset="https://www.aecci.org.in/wp-content/uploads/2023/08/1234546-1024x780.png 1024w, https://www.aecci.org.in/wp-content/uploads/2023/08/1234546-300x228.png 300w, https://www.aecci.org.in/wp-content/uploads/2023/08/1234546-768x585.png 768w, https://www.aecci.org.in/wp-content/uploads/2023/08/1234546-1536x1169.png 1536w, https://www.aecci.org.in/wp-content/uploads/2023/08/1234546-2048x1559.png 2048w"
+              srcSet="https://www.aecci.org.in/wp-content/uploads/2023/08/1234546-1024x780.png 1024w, https://www.aecci.org.in/wp-content/uploads/2023/08/1234546-300x228.png 300w, https://www.aecci.org.in/wp-content/uploads/2023/08/1234546-768x585.png 768w, https://www.aecci.org.in/wp-content/uploads/2023/08/1234546-1536x1169.png 1536w, https://www.aecci.org.in/wp-content/uploads/2023/08/1234546-2048x1559.png 2048w"
               sizes="(max-width: 400px) 100vw, 400px"
               style={{ marginLeft: "5%" }}
             />
