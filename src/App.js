@@ -10,8 +10,6 @@ import HrEmployeeData from "./components/HR/HrEmployeeData";
 import { AuthContextProvider } from "./context";
 
 
-
-
 const router = createBrowserRouter([
   { path: "/", element: <LoginPage /> },
   { path: "/hr", element: <HrDashboard /> },

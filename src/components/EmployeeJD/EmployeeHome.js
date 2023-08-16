@@ -1,9 +1,10 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import background from "../../image/bg.jpg";
 import empImg from "../../image/staff.png";
 import employee from "../../image/employee.jpg";
 import { useNavigate } from "react-router-dom";
-import AuthContext from "../../context";
+import { useData } from "../../context";
+import { useParams } from "react-router-dom";
 
 // const dummyEmployeeData = {
 //   employeeImg: { employee },
@@ -19,44 +20,62 @@ import AuthContext from "../../context";
 
 const EmployeeHome = (props) => {
   const navigate = useNavigate();
-const [employeeData,setEmployeeData]=useState(false);
+  const [employeeData, setEmployeeData] = useState(null);
 
-  const {
-    profileImage,
-    departmentName,
-    officerName,
-    userName,
-    password,
-    date,
-    signature,
-    employeeId,
-    emailId,
-    designation,
-    updateContextData,
-  } = useContext(AuthContext);
+  const { contextData } = useData();
+ 
+  console.log(contextData);
+  const params = useParams();
+
+ const profileImage=contextData.profileImage;
+  const departmentName=contextData.departmentName;
+  const officerName=contextData.officerName;
+  const userName=contextData.userName;
+  const password=contextData.password;
+  const date=contextData.date;
+  const signature=contextData.signature;
+  const employeeId=contextData.employeeId;
+  const emailId=contextData.emailId;
+  const designation=contextData.designation;
+ 
 
   const employeeDataHandler = (event) => {
     event.preventDefault();
-setEmployeeData(()=>!employeeData)
-    // fetch(`http://localhost:3001/getMyaccount/${employeeId}`, {
-    //   method: "GET",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: { employeeId: employeeId },
-    // })
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     console.log(data);
-    //     updateContextData(data)})
-    //   .catch((error) => console.error("Error fetching employee data:", error));
+    console.log(employeeId);
+    console.log(params.employeeId);
 
-    // setTimeout(() => {
-    //   setEmployeeData((prevData) => (prevData ? null : dummyEmployeeData));
-    // }, 1000);
+    setEmployeeData({
+      profileImage: profileImage,
+    departmentName: departmentName,
+    officerName:officerName,
+    userName:userName,
+    password: password,
+    date: date,
+    signature: signature,
+    employeeId: employeeId,
+    emailId: emailId,
+    designation: designation,
+
+    });
+    fetch(`http://localhost:3001/getMyaccount/${employeeId}?employeeId=${params.employeeId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+       // "Authorization": `Bearer aeccisecurity`, // Replace with the actual authentication token
+      }
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        setEmployeeData(data);
+      })
+      .catch((error) => console.error("Error fetching employee data:", error));
+
+    setTimeout(() => {
+      setEmployeeData((prevData) => (prevData ? null : employeeData));
+    }, 1000);
   };
- 
-   
+
   const openJdHandler = (event) => {
     event.preventDefault();
     navigate("/employee/employeeJd");
@@ -65,7 +84,7 @@ setEmployeeData(()=>!employeeData)
       headers: {
         "Content-Type": "application/json",
       },
-      body: { employeeId: employeeId },
+      body: JSON.stringify({ employeeId: employeeId }),
     })
       .then((response) => response.json())
       .then((data) => setEmployeeData(data))
@@ -120,7 +139,7 @@ setEmployeeData(()=>!employeeData)
               className="empImg"
               onClick={employeeDataHandler}
             />
-            {employeeData && (
+            {/* {employeeData && (
               <div className="employee-box">
                 <img
                   src={profileImage}
@@ -138,7 +157,19 @@ setEmployeeData(()=>!employeeData)
                   <p>Password: {password}</p>
                 </div>
               </div>
-            )}
+            )} */}
+            {contextData && (
+  <div className="employee-details">
+    <p>Employee Code: {contextData.employeeId}</p>
+    <p>Name: {contextData.officerName}</p>
+    <p>Designation: {contextData.designation}</p>
+    <p>Department: {contextData.departmentName}</p>
+    <p>Email: {contextData.emailId}</p>
+    <p>Date: {contextData.date}</p>
+    <p>Username: {contextData.userName}</p>
+    <p>Password: {contextData.password}</p>
+  </div>
+)}
           </div>
           <h3>Good Morning</h3>
           <p>Welcome, {emailId}</p>
@@ -148,7 +179,7 @@ setEmployeeData(()=>!employeeData)
           </button>
           <button
             className="welcome-button2"
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/")}
           >
             Logout
           </button>

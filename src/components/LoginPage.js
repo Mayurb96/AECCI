@@ -1,8 +1,7 @@
 import logo from '../image/logo.jpg';
-import { useState,useEffect,useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useInput from '../hooks/use-input';
-import AuthContext from "../context";
+import { useData } from "../context";
 
 
 
@@ -10,26 +9,18 @@ const isEmail = (value) => value.includes('@');
 const isPassword = (value) => value.trim() !== '';
 
 const Login = () => {
-  const {
-    profileImage,
-    departmentName,
-    officerName,
-    userName,
-    password,
-    date,
-    signature,
-    employeeId,
-    tasks,
-    emailId,
-    designation,
-    updateContextData,
-  } = useContext(AuthContext);
+  const {setContextData}=useData();
   const navigate=useNavigate();
   
-  const [userRole, setUserRole] = useState(null); 
-  const [userEmail, setUserEmail] = useState(null);
-  const [loggedIn,setLoggedIn]=useState(false);
+  
+  
 
+  // useEffect(()=>{
+  // fetch('http://localhost:3001/loginAdministration').then(response => response.json())
+  // .then(data => {
+  //   setContextData(data); // Assuming data is the object you want to set as context data
+  // })
+  // },[])
 
   const handleLogin = () => {
     fetch('http://localhost:3001/loginAdministration', {
@@ -44,10 +35,9 @@ const Login = () => {
       console.log(data);
       if (data.status) {
         // Assuming the server responds with a success flag upon successful login
-        updateContextData(data,navigate('/employee'));
-        setLoggedIn(true);
-
-        
+        // updateContextData(data,navigate('/employee'));
+        navigate('/employee');
+        setContextData(data);
 
       } else {
         console.error('Login failed',data.message);
@@ -98,14 +88,6 @@ const Login = () => {
 
   const emailClasses = emailHasError ? 'form-control invalid' : 'form-control';
   const passwordClasses = passwordHasError ? 'form-control invalid' : 'form-control';
-
-
-
-  useEffect(() => {
-    const User = { emailId: 'user@example.com', role: 'employee' };
-    setUserRole(User.role);
-    setUserEmail(User.emailId);
-  }, []);
 
 
   return (

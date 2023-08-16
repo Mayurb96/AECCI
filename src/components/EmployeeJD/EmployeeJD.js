@@ -3,59 +3,74 @@ import background from "../../image/bg.jpg";
 import empImg from "../../image/staff.png";
 import employee from "../../image/employee.jpg";
 import "./EmployeeJD.css";
-import { useNavigate } from "react-router-dom";
-import AuthContext from "../../context";
+import { useNavigate, useParams } from "react-router-dom";
+import AuthContext,{useData} from "../../context";
 
-const dummyEmployeeData = {
-  employeeImg: { employee },
-  employeeCode: "123",
-  name: "name name",
-  designation: "Software Engineer",
-  department: "Engineering",
-  emailId: "abc@example.com",
-  date: "06-08-23",
-  username: "name",
-  password: "password",
-};
+// const dummyEmployeeData = {
+//   employeeImg: { employee },
+//   employeeCode: "123",
+//   name: "name name",
+//   designation: "Software Engineer",
+//   department: "Engineering",
+//   emailId: "abc@example.com",
+//   date: "06-08-23",
+//   username: "name",
+//   password: "password",
+// };
 
 const EmployeeJD = () => {
+  const {contextData,setContextData}=useData();
+
+  // const {
+  //   profileImage,
+  //   departmentName,
+  //   officerName,
+  //   userName,
+  //   password,
+  //   date,
+  //   signature,
+  //   employeeId,
+  //   emailId,
+  //   designation,
+  // } = contextData;
+  const profileImage=contextData.profileImage;
+  const departmentName=contextData.departmentName;
+  const officerName=contextData.officerName;
+  const userName=contextData.userName;
+  const password=contextData.password;
+  const date=contextData.date;
+  const signature=contextData.signature;
+  const employeeId=contextData.employeeId;
+  const emailId=contextData.emailId;
+  const designation=contextData.designation;
+
   const navigate = useNavigate();
   const [employeeData, setEmployeeData] = useState(null);
   const [userRole, setUserRole] = useState(""); // Initialize with an appropriate default value
-  const {
-    profileImage,
-    departmentName,
-    officerName,
-    userName,
-    password,
-    date,
-    signature,
-    employeeId,
-    tasks,
-    emailId,
-    designation,
-    updateContextData,
-  } = useContext(AuthContext);
-
+  
+const params=useParams();
 
   useEffect(() => {
   
 
   const fetchEmployeeData = () => {
-    fetch(`http://localhost:3001/getMyaccount/${employeeId}`, {
+    fetch(`http://localhost:3001/getMyaccount/${employeeId}?employeeId=${params.employeeId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
-      body: { employeeId: employeeId },
+       // "Authorization": `Bearer aeccisecurity`, // Replace with the actual authentication token
+      }
     })
       .then((response) => response.json())
-      .then((data) => {setEmployeeData(data);
-      setUserRole(data.role)})
+      .then((data) => {
+        console.log(data);
+        setEmployeeData(data);
+      })
       .catch((error) => console.error("Error fetching employee data:", error));
+
   };
   fetchEmployeeData();
-}, [employeeId]);
+}, [employeeId,params.employeeId]);
 
   const employeeDataHandler = (event) => {
     event.preventDefault();
@@ -63,8 +78,7 @@ const EmployeeJD = () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      },
-      body: { employeeId: employeeId },
+      }
     })
       .then((response) => response.json())
       .then((data) => setEmployeeData(data))
@@ -72,7 +86,7 @@ const EmployeeJD = () => {
       .catch((error) => console.error("Error fetching employee data:", error));
 
     setTimeout(() => {
-      setEmployeeData((prevData) => (prevData ? null : dummyEmployeeData));
+      setEmployeeData((prevData) => (prevData ? null : employeeData));
     }, 1000);
   };
 
@@ -306,21 +320,21 @@ const EmployeeJD = () => {
               className="employee-details"
               style={{ display: "block", textAlign: "left" }}
             >
-              <h3>EMPLOYEE CODE: 52</h3>
+              {/* <h3>EMPLOYEE CODE: 52</h3>
               <div className="line2" />
               <h3>EMPLOYEE NAME: Vinuth Kumar</h3>
               <div className="line2" />
               <h3>DESIGNATION: Digital Efforts</h3>
               <div className="line2" />
-              <h3>REPORTING: Mr.Harish</h3>
-            </div>
+              <h3>REPORTING: Mr.Harish</h3> */}
+           
             {employeeData ? (
               <div className="employee-details">
-                <p>EMPLOYEE CODE: {employeeId}</p>
+                <h3>EMPLOYEE CODE: {employeeId}</h3>
                 <div className="line1" />
-                <p>EMPLOYEE NAME: {officerName}</p>
+                <h3>EMPLOYEE NAME: {officerName}</h3>
                 <div className="line1" />
-                <p>DESIGNATION: {designation}</p>
+                <h3>DESIGNATION: {designation}</h3>
                 <div className="line1" />
                 {/* <p>REPORTING: {reporting}</p>
                 <div className="line1" /> */}
@@ -328,6 +342,7 @@ const EmployeeJD = () => {
             ) : (
               <p>Loading employee data...</p>
             )}
+             </div>
             <img
               src="https://www.aecci.org.in/wp-content/uploads/2023/08/1234546-1024x780.png"
               className="attachment-large size-large"
