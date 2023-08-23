@@ -6,6 +6,7 @@ import './HrJdList.css'
 import { useState,useEffect } from "react";
 import EmployeeJD from "../EmployeeJD/EmployeeJD";
 import { useNavigate } from "react-router-dom";
+import { getAuthHrToken } from "../util/auth";
 
 
 const HrJdList = ({ employeeId }) => {
@@ -68,12 +69,10 @@ const HrJdList = ({ employeeId }) => {
   const navigate=useNavigate();
   const [selectedDate, setSelectedDate] = useState(null);
   const [employeeData, setEmployeeData] = useState(null);
-  const [userRole, setUserRole] = useState(""); // Initialize with an appropriate default value
+  const [userRole, setUserRole] = useState(""); 
 
-
-  // useEffect(() => {
-  //   fetchTableData();
-  // }, []);
+  const hrToken=getAuthHrToken();
+  
   useEffect(() => {
     const fetchTableData = async () => {
       try {
@@ -84,6 +83,7 @@ const HrJdList = ({ employeeId }) => {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
+              "Authorization": `Bearer ` +hrToken,
             },
           }
         ); 
@@ -95,7 +95,7 @@ const HrJdList = ({ employeeId }) => {
     };
   
     fetchTableData(); // Call the function immediately inside useEffect
-    }, [employeeId, selectedDate]);
+    }, [employeeId, selectedDate,hrToken]);
   
 
   // const fetchTableData = async () => {
@@ -127,6 +127,7 @@ const HrJdList = ({ employeeId }) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ` +hrToken,
       },
       body: { employeeId: employeeCode},
     })

@@ -1,95 +1,98 @@
-import { useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import background from "../../image/bg.jpg";
 import empImg from "../../image/staff.png";
-import employee from "../../image/employee.jpg";
 import { useNavigate } from "react-router-dom";
-import { useData } from "../../context";
-import { useParams } from "react-router-dom";
-
-// const dummyEmployeeData = {
-//   employeeImg: { employee },
-//   employeeCode: "123",
-//   name: "name name",
-//   designation: "Software Engineer",
-//   department: "Engineering",
-//   emailId: "abc@example.com",
-//   date: "06-08-23",
-//   username: "name",
-//   password: "password",
-// };
+import DataContext from "../../context/context";
+import JdContext from "../../context/jd-context";
+import { getAuthToken } from "../util/auth";
 
 const EmployeeHome = (props) => {
   const navigate = useNavigate();
   const [employeeData, setEmployeeData] = useState(null);
+  const [showEmployeeData, setShowEmployeeData] = useState(false);
 
-  const { contextData } = useData();
- 
-  console.log(contextData);
-  const params = useParams();
+  const { contextData } = useContext(DataContext);
+  const { contextJd,setContextJd } = useContext(JdContext);
 
- const profileImage=contextData.profileImage;
-  const departmentName=contextData.departmentName;
-  const officerName=contextData.officerName;
-  const userName=contextData.userName;
-  const password=contextData.password;
-  const date=contextData.date;
-  const signature=contextData.signature;
-  const employeeId=contextData.employeeId;
-  const emailId=contextData.emailId;
-  const designation=contextData.designation;
- 
-
-  const employeeDataHandler = (event) => {
-    event.preventDefault();
-    console.log(employeeId);
-    console.log(params.employeeId);
-
-    setEmployeeData({
-      profileImage: profileImage,
-    departmentName: departmentName,
-    officerName:officerName,
-    userName:userName,
-    password: password,
-    date: date,
-    signature: signature,
-    employeeId: employeeId,
-    emailId: emailId,
-    designation: designation,
-
-    });
-    fetch(`http://localhost:3001/getMyaccount/${employeeId}?employeeId=${params.employeeId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-       // "Authorization": `Bearer aeccisecurity`, // Replace with the actual authentication token
-      }
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        setEmployeeData(data);
-      })
-      .catch((error) => console.error("Error fetching employee data:", error));
-
-    setTimeout(() => {
-      setEmployeeData((prevData) => (prevData ? null : employeeData));
-    }, 1000);
+  const showEmployeeDataHandler = () => {
+    console.log("image clicked");
+    setShowEmployeeData(!showEmployeeData);
   };
+
+    const token=getAuthToken();
+
+  useEffect(() => {
+    if (showEmployeeData) {
+      fetch(
+        `http://localhost:3001/getMyaccount/${contextData.data.administrationId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ` +token,
+          },
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          setEmployeeData(data);
+        })
+        .catch((error) =>
+          console.error("Error fetching employee data:", error)
+        );
+    }
+  }, [showEmployeeData, contextData.data.administrationId,token]);
+
+  const [timer, setTimer] = useState(1800);
+  const [tableData, setTableData] = useState([]);
+  const [startTime,setStartTime]=useState(null)
+  const [jobRole, setJobRole] = useState("");
+  const [description, setDescription] = useState("");
+  const [timeExpired, setTimeExpired] = useState(false);
+  const [endTime,setEndTime]=useState(null);
+
 
   const openJdHandler = (event) => {
     event.preventDefault();
     navigate("/employee/employeeJd");
-    fetch(`http://localhost:3001/createEmployeeJd/${employeeId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ employeeId: employeeId }),
-    })
+    fetch(
+      `http://localhost:3001/createEmployeeJd/${contextData.data.administrationId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+         "Authorization": `Bearer ` +token,
+        },
+      }
+    )
       .then((response) => response.json())
-      .then((data) => setEmployeeData(data))
-      .catch((error) => console.error("Error fetching employee data:", error));
-  };
+      .then((data) => {
+        setContextJd(data);
+        sessionStorage.setItem('contextJd', JSON.stringify(data));
+        console.log(data);
+        console.log(data.data.timeIn);
+      const newTask = {
+        startTime, 
+        jobRole,
+        description,
+        endTime: endTime, 
+      };
+        setStartTime(new Date().toLocaleTimeString());
+          setTableData((prevData) => [...prevData, newTask]); 
+          
+          setJobRole("");
+          setDescription("");
+          setTimer(1800);
+        })
+        .catch((error) => console.error("Error fetching employee data:", error));
+  
+      setTimer(1800);
+      setTimeExpired(false);
+    };
+     
+
+  console.log(contextJd);
 
   return (
     <form>
@@ -137,50 +140,35 @@ const EmployeeHome = (props) => {
               src={empImg}
               alt="employeeImg"
               className="empImg"
-              onClick={employeeDataHandler}
+              onClick={showEmployeeDataHandler}
             />
-            {/* {employeeData && (
+
+            {employeeData && (
               <div className="employee-box">
                 <img
-                  src={profileImage}
+                  src={contextData.data.profileImage}
                   alt="Employee"
                   className="employee-img"
                 />
                 <div className="employee-details">
-                  <p>Employee Code: {employeeId}</p>
-                  <p>Name: {officerName}</p>
-                  <p>Designation: {designation}</p>
-                  <p>Department: {departmentName}</p>
-                  <p>Email: {emailId}</p>
-                  <p>Date: {date}</p>
-                  <p>Username: {userName}</p>
-                  <p>Password: {password}</p>
+                  <p>Employee Code: {contextData.data.employeeId}</p>
+                  <p>Name: {contextData.data.officerName}</p>
+                  <p>Designation: {contextData.data.designation}</p>
+                  <p>Department: {contextData.data.departmentName}</p>
+                  <p>Email: {contextData.data.emailId}</p>
+                  <p>Date: {contextData.data.Date}</p>
+                  <p>Username: {contextData.data.userName}</p>
                 </div>
               </div>
-            )} */}
-            {contextData && (
-  <div className="employee-details">
-    <p>Employee Code: {contextData.employeeId}</p>
-    <p>Name: {contextData.officerName}</p>
-    <p>Designation: {contextData.designation}</p>
-    <p>Department: {contextData.departmentName}</p>
-    <p>Email: {contextData.emailId}</p>
-    <p>Date: {contextData.date}</p>
-    <p>Username: {contextData.userName}</p>
-    <p>Password: {contextData.password}</p>
-  </div>
-)}
+            )}
           </div>
           <h3>Good Morning</h3>
-          <p>Welcome, {emailId}</p>
+          <p>Welcome, {contextData.data.emailId}</p>
 
           <button className="welcome-button1" onClick={() => navigate(-1)}>
             Back
           </button>
-          <button
-            className="welcome-button2"
-            onClick={() => navigate("/")}
-          >
+          <button className="welcome-button2" onClick={() => navigate("/")}>
             Logout
           </button>
 
@@ -210,3 +198,18 @@ const EmployeeHome = (props) => {
 };
 
 export default EmployeeHome;
+
+// fetch(
+      //   `http://localhost:3001/thirtyMin/${contextData.data.employeeId}/${contextJd.data.employeeJdId}`,
+      //   {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //       // "Authorization": `Bearer ` +token,
+      //     },
+      //     body: {
+      //       employeeId: contextData.data.employeeId,
+      //       jdId: contextJd.data.employeeJdId,
+      //     },
+      //   }
+      // )

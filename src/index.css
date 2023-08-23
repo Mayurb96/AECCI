@@ -63,7 +63,7 @@ body {
 
 .form-control label {
   font-weight: bold;
-  margin-left: 20%;
+  margin-left: 35%;
   margin-right: 20px;
   margin-bottom: 0.5rem;
 }
@@ -158,3 +158,11 @@ h3{
   color: #b40e0e;
   margin-left: 5rem;
 }
+
+.hr-image{
+width:5rem;
+height: 5rem;
+margin-left: 85%;
+cursor: pointer;
+}
+

@@ -1,10 +1,13 @@
-import React from "react";
+import React,{useContext} from "react";
 import background from "../../image/bg.jpg";
 import "../Admin/AdminDashboard.css";
 import { useNavigate } from "react-router-dom";
+import DataContext from "../../context/context";
+import { getAuthHrToken } from "../util/auth";
 
 const HrDashboard = (props) => {
-  const empEmailId = "hr@aecci.org.in";
+  const {contextData}=useContext(DataContext);
+  const empEmailId = contextData.data.emailId;
   const navigate=useNavigate();
 
   return (
@@ -46,13 +49,13 @@ const HrDashboard = (props) => {
           <h3>Good Morning</h3>
           <p>Welcome, {empEmailId}</p>
           <button className="welcome-button1" onClick={()=>navigate(-1)}>Back</button>
-          <button className="welcome-button2" onClick={()=>navigate('/login')}>Logout</button>
+          <button className="welcome-button2" onClick={()=>navigate('/login/hr')}>Logout</button>
           <div className="line1" />
 
           <div className="admin-functions">
             <div className="line1" />
             <button className="functions-button1" onClick={()=>navigate('/hr/create')}>CREATE EMPLOYEE DETAILS</button>
-            <button className="functions-button2" >EMPLOYEE LIST</button>
+            <button className="functions-button2" onClick={()=>navigate('/hr/employeeData')}>EMPLOYEE LIST</button>
             <br />
             <div className="line1" />
             <button className="functions-button1">SERVICES</button>

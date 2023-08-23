@@ -1,108 +1,88 @@
-import { useState, useEffect,useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import background from "../../image/bg.jpg";
 import empImg from "../../image/staff.png";
-import employee from "../../image/employee.jpg";
 import "./EmployeeJD.css";
-import { useNavigate, useParams } from "react-router-dom";
-import AuthContext,{useData} from "../../context";
-
-// const dummyEmployeeData = {
-//   employeeImg: { employee },
-//   employeeCode: "123",
-//   name: "name name",
-//   designation: "Software Engineer",
-//   department: "Engineering",
-//   emailId: "abc@example.com",
-//   date: "06-08-23",
-//   username: "name",
-//   password: "password",
-// };
+import { useNavigate } from "react-router-dom";
+import DataContext from "../../context/context";
+import JdContext from "../../context/jd-context";
+import TableContext from "../../context/table-context";
+import {getAuthToken} from "../util/auth";
 
 const EmployeeJD = () => {
-  const {contextData,setContextData}=useData();
+  const { contextData } = useContext(DataContext);
 
-  // const {
-  //   profileImage,
-  //   departmentName,
-  //   officerName,
-  //   userName,
-  //   password,
-  //   date,
-  //   signature,
-  //   employeeId,
-  //   emailId,
-  //   designation,
-  // } = contextData;
-  const profileImage=contextData.profileImage;
-  const departmentName=contextData.departmentName;
-  const officerName=contextData.officerName;
-  const userName=contextData.userName;
-  const password=contextData.password;
-  const date=contextData.date;
-  const signature=contextData.signature;
-  const employeeId=contextData.employeeId;
-  const emailId=contextData.emailId;
-  const designation=contextData.designation;
+  const { contextJd,setContextJd } = useContext(JdContext);
+  const { contextTable,setContextTable}=useContext(TableContext);
 
   const navigate = useNavigate();
   const [employeeData, setEmployeeData] = useState(null);
-  const [userRole, setUserRole] = useState(""); // Initialize with an appropriate default value
-  
-const params=useParams();
+  const [userRole, setUserRole] = useState(""); 
+  const token=getAuthToken();
+  const [showNext,setShowNext]=useState(false);
 
   useEffect(() => {
-  
-
-  const fetchEmployeeData = () => {
-    fetch(`http://localhost:3001/getMyaccount/${employeeId}?employeeId=${params.employeeId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-       // "Authorization": `Bearer aeccisecurity`, // Replace with the actual authentication token
-      }
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        setEmployeeData(data);
-      })
-      .catch((error) => console.error("Error fetching employee data:", error));
-
-  };
-  fetchEmployeeData();
-}, [employeeId,params.employeeId]);
+    const fetchEmployeeData = () => {
+      fetch(
+        `http://localhost:3001/getMyaccount/${contextData.data.administrationId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ` +token,
+          },
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          setEmployeeData(data);
+        })
+        .catch((error) =>
+          console.error("Error fetching employee data:", error)
+        );
+    };
+    fetchEmployeeData();
+  },[]);
 
   const employeeDataHandler = (event) => {
     event.preventDefault();
-    fetch(`http://localhost:3001/getMyaccount/${employeeId}`, {
+    fetch(`http://localhost:3001/getMyaccount/${contextData.data.administrationId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-      }
+        "Authorization": `Bearer ` +token,
+      },
     })
       .then((response) => response.json())
       .then((data) => setEmployeeData(data))
-      
-      .catch((error) => console.error("Error fetching employee data:", error));
 
-    setTimeout(() => {
-      setEmployeeData((prevData) => (prevData ? null : employeeData));
-    }, 1000);
+      .catch((error) => console.error("Error fetching employee data:", error));
   };
 
-  const [timer, setTimer] = useState(1800);
-  const [tableData, setTableData] = useState([]);
+  const initialTimer = parseInt(localStorage.getItem('timer') || '1800', 10);
+  const [timer, setTimer] = useState(initialTimer);
+
+  const [tableData, setTableData] = useState({});
+  const [timeIn,setTimeIn]=useState(null);
   const [jobRole, setJobRole] = useState("");
-  const [description, setDescription] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
   const [timeExpired, setTimeExpired] = useState(false);
   const [extensions, setExtensions] = useState(0);
-  
+  const [logOut,setLogOut]=useState(null);
+
+  const [entries, setEntries] = useState([]);
+
+
+  useEffect(()=>{
+    localStorage.setItem('timer', timer.toString());
+  },[timer])
 
   useEffect(() => {
     let interval = null;
     if (timer > 0) {
       interval = setInterval(() => {
         setTimer((prevTimer) => prevTimer - 1);
+        
       }, 1000);
     } else {
       if (interval) {
@@ -114,6 +94,10 @@ const params=useParams();
     return () => clearInterval(interval);
   }, [timer]);
 
+  useEffect(()=>{
+    setTimeIn(new Date().toLocaleTimeString()); 
+  },[])
+
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secondsLeft = seconds % 60;
@@ -121,120 +105,112 @@ const params=useParams();
       .toString()
       .padStart(2, "0")}`;
   };
-  const jdId=1;
 
-  const handleEndTask = () => {
-    const endTime = new Date(); // Get the current time as the end time
-  const newTask = {
-    startTime: showTime, // Start time captured earlier
-    jobRole,
-    description,
-    endTime: endTime.toLocaleTimeString(), // Format end time as a string
-  };
-    fetch(`http://localhost:3001/logOutJd/${employeeId}/${jdId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: { employeeId: employeeId, jdId: jdId },
-    })
-      .then((response) => { if (response.ok) {
-        return response.json(); // Parse response data if successful
-      } else {
-        throw new Error("Error logging out JD"); // Handle error if not successful
-      }})
-      .then((data) => {  
-        setTableData((prevData) => [...prevData, newTask]); // Add newTask to tableData
-        setJobRole("");
-        setDescription("");
-        setTimer(1800);
-      })
-      .catch((error) => console.error("Error fetching employee data:", error));
-
-    setTableData((prevData) => [...prevData, { jobRole, description }]);
-    setJobRole("");
-    setDescription("");
-    setTimer(1800);
-  };
-  const startTimeHandler = (event) => {
+   
+  const handleExtendTimer = (event) => {
     event.preventDefault();
-    const startTime = new Date(); // Get the current time as the end time
-  const newTask = {
-    startTime: startTime.toLocaleTimeString(), // Start time captured earlier
-    jobRole,
-    description,
-    endTime: showTime, // Format end time as a string
-  };
-    fetch(`http://localhost:3001/thirtyMin/${employeeId}/${jdId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: { employeeId: employeeId, jdId:jdId },
-    })
-      .then((response) => { if (response.ok) {
-        return response.json(); // Parse response data if successful
-      } else {
-        throw new Error("Error logging out JD"); // Handle error if not successful
-      }})
-      .then((data) => {  
-        setTableData((prevData) => [...prevData, newTask]); // Add newTask to tableData
-        setJobRole("");
-        setDescription("");
-        setTimer(1800);
-      })
-      .catch((error) => console.error("Error fetching employee data:", error));
-
-    setTimer(1800);
-    setTimeExpired(false);
-  };
-  const handleExtendTimer = () => {
-    fetch(`http://localhost:3001/fifteenMin/${employeeId}/${jdId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: { employeeId: employeeId },
-    })
-      .then((response) => response.json())
-      .then((data) => setTableData(data))
-      .catch((error) => console.error("Error fetching employee data:", error));
-
     if (extensions <= 2) {
       setTimer(900);
       setExtensions((prevExtensions) => prevExtensions + 1);
       setTimeExpired(false);
-    }
+        }
   };
 
-  const nextTaskHandler=(event)=>{
+  const nextTaskHandler = (event) => {
     event.preventDefault();
-    fetch(`http://localhost:3001/createAnotherOne/${employeeId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: { employeeID: employeeId },
-    })
+    const endTime= null;
+    const newTask = {
+      timeIn,
+      jobRole:jobRole,
+      jobDescription:jobDescription,
+      logOut:endTime,
+    };
+    setEntries((prevEntries) => [...prevEntries]); 
+    fetch(
+      `http://localhost:3001/createEmployeeJd/${contextData.data.administrationId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+         "Authorization": `Bearer ` +token,
+        },
+      }
+    )
       .then((response) => response.json())
-      .then((data) => setTableData(data))
+      .then((data) => {// Assuming the API response contains a unique ID for the new row.
+        setTableData((prevData) => ({
+          ...prevData,
+        }));
+      
+      })
       .catch((error) => console.error("Error fetching employee data:", error));
-
+      setJobRole("");
+      setJobDescription("");
+     setTimeIn(new Date().toLocaleTimeString()); 
     setTimer(1800);
     setTimeExpired(false);
-  }
+    setLogOut(null);
+    setShowNext(!showNext);
+
+  };
 
   const current = new Date();
   const jdDate = `${current.getDate()}/${
     current.getMonth() + 1
   }/${current.getFullYear()}`;
 
-  const showTime =
-    current.getHours() +
-    ":" +
-    current.getMinutes() +
-    ":" +
-    current.getSeconds();
+
+    const handleEndTask = (event) => {
+      event.preventDefault();
+
+     const endTime= new Date().toLocaleTimeString();
+
+      const newTask = {
+        timeIn,
+        jobRole:jobRole,
+        jobDescription:jobDescription,
+        logOut:endTime,
+      };
+
+  console.log(newTask);
+  setEntries((prevEntries) => [...prevEntries, newTask]);
+
+      fetch(
+        `http://localhost:3001/logOutJd/${contextData.data.administrationId}/${contextJd.data.employeeJdId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ` +token,
+          },
+          body: JSON.stringify(newTask),
+          
+        }
+      )
+        .then((response) => {
+          console.log(response);
+          if (response.ok) {
+            console.log(response);
+            return response.json(); 
+          } else {
+            throw new Error("Error logging out JD"); 
+           
+          }
+        })
+        .then((data) => {
+          const newTableRowId = data.id;
+          console.log(data)
+          setTableData((prevData) => ({ ...prevData, [newTableRowId]: newTask }));;           
+                        })
+        .catch((error) => console.error("Error fetching employee data:", error));
+  
+    setShowNext(!showNext);
+      setTimeIn(null);
+      setJobRole("");
+      setJobDescription("");
+      setTimer(1800);
+      setLogOut("");
+        };
 
   return (
     <div>
@@ -287,19 +263,18 @@ const params=useParams();
             {employeeData && (
               <div className="employee-box">
                 <img
-                  src={profileImage}
+                  src={contextData.data.profileImage}
                   alt="Employee"
                   className="employee-img"
                 />
                 <div className="employee-details">
-                  <p>Employee Code: {employeeId}</p>
-                  <p>Name: {officerName}</p>
-                  <p>Designation: {designation}</p>
-                  <p>Department: {departmentName}</p>
-                  <p>Email: {emailId}</p>
-                  <p>Date: {date}</p>
-                  <p>Username: {userName}</p>
-                  <p>Password: {password}</p>
+                  <p>Employee Code: {contextData.data.employeeId}</p>
+                  <p>Name: {contextData.data.officerName}</p>
+                  <p>Designation: {contextData.data.designation}</p>
+                  <p>Department: {contextData.data.departmentName}</p>
+                  <p>Email: {contextData.data.emailId}</p>
+                  <p>Date: {contextData.data.Date}</p>
+                  <p>Username: {contextData.data.userName}</p>
                 </div>
               </div>
             )}
@@ -310,7 +285,7 @@ const params=useParams();
           </button>
           <button
             className="welcome-button2"
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/")}
           >
             Logout
           </button>
@@ -320,29 +295,20 @@ const params=useParams();
               className="employee-details"
               style={{ display: "block", textAlign: "left" }}
             >
-              {/* <h3>EMPLOYEE CODE: 52</h3>
-              <div className="line2" />
-              <h3>EMPLOYEE NAME: Vinuth Kumar</h3>
-              <div className="line2" />
-              <h3>DESIGNATION: Digital Efforts</h3>
-              <div className="line2" />
-              <h3>REPORTING: Mr.Harish</h3> */}
-           
-            {employeeData ? (
-              <div className="employee-details">
-                <h3>EMPLOYEE CODE: {employeeId}</h3>
-                <div className="line1" />
-                <h3>EMPLOYEE NAME: {officerName}</h3>
-                <div className="line1" />
-                <h3>DESIGNATION: {designation}</h3>
-                <div className="line1" />
-                {/* <p>REPORTING: {reporting}</p>
-                <div className="line1" /> */}
-              </div>
-            ) : (
-              <p>Loading employee data...</p>
-            )}
-             </div>
+              {employeeData ? (
+                <div className="employee-details">
+                  <h3>EMPLOYEE CODE: {contextData.data.employeeId}</h3>
+                  <div className="line1" />
+                  <h3>EMPLOYEE NAME: {contextData.data.officerName}</h3>
+                  <div className="line1" />
+                  <h3>DESIGNATION: {contextData.data.designation}</h3>
+                  <div className="line1" />
+                  <h3>REPORTING: Executive Director</h3>
+                </div>
+              ) : (
+                <p>Loading employee data...</p>
+              )}
+            </div>
             <img
               src="https://www.aecci.org.in/wp-content/uploads/2023/08/1234546-1024x780.png"
               className="attachment-large size-large"
@@ -373,36 +339,34 @@ const params=useParams();
               <tr>
                 <td>{jdDate}</td>
                 <td>
-                  {showTime}{" "}
-                  <button
-                    onClick={startTimeHandler}
-                    style={{ marginTop: "15px" }}
-                  >
-                    START
-                  </button>
+                  {timeIn}
                 </td>
                 <td>
                   <textarea
                     type="text"
                     value={jobRole}
-                    className="table-input"
+                    className="table-input1"
                     onChange={(e) => setJobRole(e.target.value)}
+                    required
                   />
                 </td>
                 <td>
                   <textarea
                     type="text"
-                    value={description}
-                    className="table-input"
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={jobDescription}
+                    className="table-input2"
+                    onChange={(e) => setJobDescription(e.target.value)}
+                    required
                   />
                 </td>
-                <td>{showTime}</td>
+                <td>{logOut}</td>
                 <td>{formatTime(timer)}</td>
                 <td>
                   {!timeExpired && extensions <= 2 && (
                     <button onClick={handleEndTask}>End</button>
                   )}
+                {showNext && <button onClick={nextTaskHandler}>NEXT</button>}
+
                   {timeExpired && (
                     <div>
                       {extensions < 2 ? (
@@ -419,49 +383,43 @@ const params=useParams();
                         </button>
                       )}
                       {!timeExpired && extensions <= 2 && userRole === "Hr" && (
-  <button onClick={handleEndTask}>End</button>
-)}
-{timeExpired && userRole === "Hr" && (
-  <div>
-    {extensions < 2 ? (
-      <button onClick={handleExtendTimer}>Extend</button>
-    ) : (
-      <button disabled>Extend</button>
-    )}
-    {extensions < 2 && (
-      <button onClick={handleEndTask}>End</button>
-    )}
-    {extensions >= 2 && (
-      <button onClick={handleEndTask} disabled>
-        End
-      </button>
-    )}
-  </div>
-)}
-
+                        <button onClick={handleEndTask}>End</button>
+                      )}
+                      {timeExpired && userRole === "Hr" && (
+                        <div>
+                          {extensions < 2 ? (
+                            <button onClick={handleExtendTimer}>Extend</button>
+                          ) : (
+                            <button disabled>Extend</button>
+                          )}
+                          {extensions < 2 && (
+                            <button onClick={handleEndTask}>End</button>
+                          )}
+                          {extensions >= 2 && (
+                            <button onClick={handleEndTask} disabled>
+                              End
+                            </button>
+                          
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </td>
               </tr>
-              {tableData.map((item, index) => (
+               {entries.map((item, index) => (
                 <tr key={index}>
-                  <td>{item.startTime}</td>
+                  <td>{jdDate}</td>
+                  <td>{item.timeIn}</td>
                   <td>{item.jobRole}</td>
-                  <td>{item.description}</td>
-                  <td>{item.endTime}</td>
-                  <td>{formatTime(timer)}</td>
-                  
-                  <td>
-                    <button onClick={nextTaskHandler}>
-                      NEXT BLOCK
-                    </button>
-                  </td>
+                  <td>{item.jobDescription}</td>
+                  <td>{item.logOut}</td>
                 </tr>
               ))}
             </tbody>
           </table>
           <button
-            onClick={() => console.log("SUBMIT", tableData)}
+            onClick={() => <p>You have successfully submitted the JD for Today</p>}
             style={{ marginLeft: "18%", marginTop: "30px" }}
           >
             SUBMIT

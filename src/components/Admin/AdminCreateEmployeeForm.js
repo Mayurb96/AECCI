@@ -1,32 +1,33 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import './AdminCreateEmployee.css'
+import DataContext from "../../context/context";
 
 const AdminCreateEmployee = (props) => {
-  const [department, setDepartment] = useState("");
+  const [departmentName, setDepartment] = useState("");
   const [officerName, setOfficerName] = useState("");
   const [employeeId, setEmployeeId] = useState("");
   const [designation, setDesignation] = useState("");
-  const [email, setEmail] = useState("");
+  const [emailId, setEmail] = useState("");
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const [date, setDate] = useState("");
   const [profilePicture, setProfilePicture] = useState(null);
   const [signature, setSignature] = useState(null);
   const [formSubmitted, setFormSubmitted] = useState(false);
+
+  const {setContextData}=useContext(DataContext);
 
   const formSubmitHandler = (event) => {
     event.preventDefault();
 
     
     if (
-      department.trim() === "" ||
+      departmentName.trim() === "" ||
       officerName.trim() === "" ||
       employeeId.trim() === "" ||
       designation.trim() === "" ||
-      email.includes('@') ||
+      emailId.includes('@') ||
       userName.trim() === "" ||
       password.trim() === "" ||
-      date === "" ||
       !profilePicture ||
       !signature
     ) {
@@ -35,28 +36,26 @@ const AdminCreateEmployee = (props) => {
     }
 
     const empData = {
-        department,
+        departmentName,
         officerName,
         employeeId,
         designation,
-        email,
+        emailId,
         userName,
         password,
-        date,
         profilePicture,
         signature,
       };
-  
+  setContextData(empData);
       props.onSaveEmpData(empData);
     console.log("Form submitted:", {
-      department,
+      departmentName,
       officerName,
       employeeId,
       designation,
-      email,
+      emailId,
       userName,
       password,
-      date,
       profilePicture,
       signature,
     });
@@ -68,7 +67,6 @@ const AdminCreateEmployee = (props) => {
     setEmail("");
     setUserName("");
     setPassword("");
-    setDate("");
     setProfilePicture(null);
     setSignature(null);
     setFormSubmitted(true);
@@ -76,12 +74,12 @@ const AdminCreateEmployee = (props) => {
 
   return (
     <div className="employee-form">
-      <form onSubmit={formSubmitHandler}>
+      <form onSubmit={formSubmitHandler} action="/hr/create" method="POST">
         <div className="employee-input">
         <label className="form-label">
           Name of Department
           <select
-            value={department}
+            value={departmentName}
             onChange={(event) => setDepartment(event.target.value)}
             required
           >
@@ -149,7 +147,7 @@ const AdminCreateEmployee = (props) => {
           Email ID
           <input
             type="email"
-            value={email}
+            value={emailId}
             onChange={(event) => setEmail(event.target.value)}
             required
           />
@@ -176,16 +174,6 @@ const AdminCreateEmployee = (props) => {
           />
         </label>
         </div>
-        <div className="employee-input">
-        <label className="form-label">
-          Date
-          <input
-            type="date"
-            value={date}
-            onChange={(event) => setDate(event.target.value)}
-            required
-          />
-        </label></div>
         <div className="employee-input">
         <label className="form-label">
           Upload Profile Picture
